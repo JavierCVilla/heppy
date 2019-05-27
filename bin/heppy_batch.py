@@ -105,7 +105,7 @@ echo
 """.format(looper=looper.__file__,
            heppy_option_str=heppy_option_str, 
            copy=cpCmd,
-           pythonpath=os.getcwd(), fccswpath=os.environ['FCCSWPATH'])
+           pythonpath=os.getcwd())
 
 # IMPORTANT -> need to make safer get back of the files with line :
 # cd `find . -type d | grep _pp_`

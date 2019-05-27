@@ -47,7 +47,7 @@ Error          = ${prefix}condor_job_\$(ProcId).error
 getenv         = True
 environment    = "LS_SUBCWD=${here}"
 request_memory = 2G
-requirements   = ( (OpSysAndVer =?= "CentOS7") 
+requirements   = (OpSysAndVer =?= "CentOS7") 
 on_exit_remove = (ExitBySignal == False) && (ExitCode == 0)
 max_retries    = 3
 +AccountingGroup = "group_u_FCC.local_gen"

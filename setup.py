@@ -16,7 +16,7 @@ submission for certain experiments (currently CMS and FCC).
     
 setuptools.setup(
     name='heppyfwk',
-    version='3.0.1',
+    version='3.0.2',
     author='Colin Bernet',
     author_email='colin.bernet@gmail.com',
     description='An event processing framework for High Energy Physics.',
