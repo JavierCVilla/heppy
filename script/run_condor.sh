@@ -27,7 +27,9 @@ fi
 
 here=$(pwd)
 if [[ "$bulk" != "" ]]; then
-    jobdesc="jobs_desc_${bulk}.cfg"
+    # Remove slashes for cases "dirA/dirB"
+    bulk_name=${bulk/"/"/-}
+    jobdesc="jobs_desc_${bulk_name}.cfg"
     prefix="\$(Chunk)/";
     here="$here/\$(Chunk)"
 else
@@ -57,7 +59,16 @@ EOF
 [[ "${maxruntime}" != "" ]] && [[ "${maxruntime}" != "-t" ]] && echo "+MaxRuntime = ${maxruntime}" >> $jobdesc
 
 if [[ "$bulk" != "" ]]; then
-    echo "queue Chunk matching dirs ${bulk}/*_Chunk*" >> $jobdesc
+    # Check if $bulk exists as a directory
+    if [ -d $bulk ]; then
+      echo "queue Chunk matching dirs ${bulk}/*_Chunk*" >> $jobdesc
+    else
+       echo "$bulk directory does not exist"
+       echo "You need to specify the same output directory passed to heppy_batch.py"
+       echo "Do you mean one of these?"
+       echo `find . -maxdepth 2 -iname "small_tt_batch"`
+       exit 1
+    fi
 else
     echo "queue 1" >> $jobdesc
 fi;

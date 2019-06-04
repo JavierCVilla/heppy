@@ -94,18 +94,20 @@ fi"""
    script_old = """#!/bin/bash
 cd $HEPPY
 source ./init.sh
+echo 'environment:'
+echo
+env | sort
 cd -
-cp -rf $LS_SUBCWD .
+cp -rf $LS_SUBCWD/* .
+echo "Current directory: $PWD"
 ls
-cd `find . -type d | grep _pp_`
 echo 'running'
 python {looper} config.pck {heppy_option_str}
 echo
 {copy}
 """.format(looper=looper.__file__,
            heppy_option_str=heppy_option_str, 
-           copy=cpCmd,
-           pythonpath=os.getcwd())
+           copy=cpCmd)
 
 # IMPORTANT -> need to make safer get back of the files with line :
 # cd `find . -type d | grep _pp_`
