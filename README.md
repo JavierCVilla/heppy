@@ -18,6 +18,70 @@ master
 
 Support & feedback: [https://github.com/cbernet]()
 
+Testing CONDOR batch system
+===========================
+
+1. Log into `lxplus`
+
+   ```
+   $ ssh lxplus
+   ```
+
+   Note: `lxplus` alias switched to **CC7** on Apr 2nd 2019 - More info at [http://cern.ch/go/K7lq](http://cern.ch/go/K7lq)
+
+2. Get this version of `heppy`
+
+   ```
+   $ git clone https://github.com/javiercvilla/heppy
+   $ cd heppy
+   $ git checkout heppy-condor
+   ```
+
+3. Prepare the environment, the following script sources:
+
+  - A view of the LCG Release `LCG_94`
+  - A view of the FCC externals `94.2.0`
+  - This version of `heppy`, overrading the one provided by the `94.2.0`
+
+   ```
+   $ source init.sh
+   ```
+
+4. If you want to run an analysis from the `FCChhAnalyses` package, clone it on the parent directory and copy the `FCChhAnalyses` folder inside `heppy` as we only need the python module:
+
+   ```
+   # Clone it on the parent directory
+   $ git clone https://github.com/hep-fcc/FCChhAnalyses ../FCChhAnalyses
+
+   # Get the module and copy it inside `heppy`
+   $ cp -r ../FCChhAnalyses/FCChhAnalyses/ .
+   ```
+
+5. Run the analysis:
+
+   ```
+   heppy_batch.py -o Outdir FCChhAnalyses/HELHC/Zprime_tt/analysis.py -b 'run_condor.sh --bulk Outdir -f microcentury' --nevent 1000
+   ```
+
+That should prepare a bunch of "Chunk" directories inside `Outdir` and submit a job to HTCondor.
+
+**Note: Assumptions to be fixed**
+
+- `FCChhAnalyses` folder needs to be inside `heppy`
+- Current configuration assumes that the script `run_condor.sh` is located inside the `script` folder
+- The output directory specified passed to the `heppy_batch.py` command with the `-o` option AND the name specified in the `--bulk` option to the `run_condor.sh` script HAS TO be the same.
+- If `heppy` does not create "Chunk" directories inside the output directory, then the `heppy_batch.py` command will prepare everything but the final submission. In this case, users will be asked to modify the description file (`.cfg`). For example, the analysis `FCChhAnalyses/FCChh/tttt` does not produce "Chunk" directories due to this [line](https://github.com/HEP-FCC/FCChhAnalyses/blob/master/FCChhAnalyses/FCChh/tttt/analysis.py#L77), instead it creates a folder called `example`. After replacing the `queue` command at the very end of the description file (`.cfg`) users can submit the job manually running:
+
+   ```
+   condor_submit <description_filename>
+   ```
+
+   where `<description_filename>` should be something like `jobs_desc_Outdir.cfg` or similar.
+
+
+------------------
+
+
 New CONDOR batch :
 -----------------
 submit example :
@@ -59,13 +123,13 @@ heppy_check.py Outdir/*Chunk* -b 'run_condor.sh -f microcentury'
 ```
 
 FCC actually have their own quota. To use it, you need to get yourself added to the egroup:
- 
+
 ```
 fcc-experiments-comp
 ```
- 
+
 Then you can add the following to your submit file:
- 
+
 ```
 +AccountingGroup = "group_u_FCC.local_gen"
 ```
