@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# Read input arguments
 if [[ "$1" == "--help" || "$1" == "-h"  || "$1" == "-?" ]]; then
     echo "usage: $0 [ -f flavour | -t max_runtime_in_minutes ] script.sh "
     exit 1;
@@ -61,13 +62,37 @@ EOF
 if [[ "$bulk" != "" ]]; then
     # Check if $bulk exists as a directory
     if [ -d $bulk ]; then
-      echo "queue Chunk matching dirs ${bulk}/*_Chunk*" >> $jobdesc
+      # Check if heppy has created "*_Chunk*" dirs inside the output directory
+      # The following expression will be True if any directory contains 
+      # "_Chunk" as part of its name 
+      if ls $bulk/*_Chunk* 1> /dev/null 2>&1; then
+        echo "queue Chunk matching dirs ${bulk}/*_Chunk*" >> $jobdesc
+      else
+        # TODO: Change this for a smarter checking
+        # heppy could provide this information to this script
+        queueCmd="queue Chunk matching dirs ${bulk}/<REPLACE>"
+        echo $queueCmd >> $jobdesc
+        echo ""
+        echo "WARNING: The following INCOMPLETE command has been added to $jobdesc"
+        echo
+        echo $queueCmd
+        echo 
+        echo "Please, substitute \"<REPLACE>\" by the name of the directory inside \"$bulk\" created by Heppy"
+        echo "It may be the following: "
+        echo 
+        dirname=`ls -lct $bulk | head -n 2 | tr -s " " | cut -d" " -f 9 | xargs`
+        echo $bulk/$dirname
+        echo 
+        echo "Once modified run the followin command to submit the job:"
+        echo "condor_submit $jobdesc"
+        exit 1
+      fi
     else
-       echo "$bulk directory does not exist"
-       echo "You need to specify the same output directory passed to heppy_batch.py"
-       echo "Do you mean one of these?"
-       echo `find . -maxdepth 2 -iname "small_tt_batch"`
-       exit 1
+      echo "$bulk directory does not exist"
+      echo "You need to specify the same output directory passed to heppy_batch.py"
+      echo "Do you mean one of these?"
+      echo `find . -maxdepth 2 -iname "$bulk"`
+      exit 1
     fi
 else
     echo "queue 1" >> $jobdesc
