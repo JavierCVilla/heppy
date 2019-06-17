@@ -29,7 +29,7 @@ fi
 here=$(pwd)
 if [[ "$bulk" != "" ]]; then
     # Remove slashes for cases "dirA/dirB"
-    bulk_name=${bulk/"/"/-}
+    bulk_name=${bulk//"/"/-}
     jobdesc="jobs_desc_${bulk_name}.cfg"
     prefix="\$(Chunk)/";
     here="$here/\$(Chunk)"
